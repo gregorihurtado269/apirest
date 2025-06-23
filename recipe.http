@@ -1,0 +1,31 @@
+### Crear receta (ejemplo: Pescadillas de atún)
+POST http://localhost:5000/api/recipes
+Content-Type: application/json
+
+{
+  "title": "Bolón de verde",
+  "imageUrl": "https://cdn0.recetasgratis.net/es/posts/6/8/4/bolon_de_verde_74486_orig.jpg",
+  "description": "Desayuno tradicional de la costa ecuatoriana hecho a base de plátano verde y relleno de chicharrón de cerdo y queso fresco.",
+  "timeRequired": 45,
+  "servings": 4,
+  "difficulty": "Principiante" ,
+  "type": "Ecuatoriana",
+  "ingredients": [
+    { "ingredient": "6858ef9b38f3ab2130e1558d", "quantity": 2, "unit": "unidad" },             
+    { "ingredient": "6858efac38f3ab2130e1558f", "quantity": 150, "unit": "gramo" },           
+    { "ingredient": "6858efc938f3ab2130e15591", "quantity": 150, "unit": "gramo" },             
+    { "ingredient": "6858efdc38f3ab2130e15595", "quantity": 0.5, "unit": "cucharadita" },       
+    { "ingredient": "6858efec38f3ab2130e15597", "quantity": 1, "unit": "cucharada" },         
+    { "ingredient": "6858eff638f3ab2130e15599", "quantity": 500, "unit":"mililitro" }              
+  ],
+  "steps": [
+    "Pela los plátanos verdes y córtalos en dos.",
+    "Cocina los plátanos en agua hirviendo durante aproximadamente 15 minutos o hasta que estén blandos.",
+    "Escúrrelos y májalos con un pasapuré o tenedor. Agrega la sal y la mantequilla.",
+    "Agrega el chicharrón picado y el queso rallado grueso cuando aún estén tibios los plátanos.",
+    "Mezcla bien y amasa con las manos hasta integrar todo.",
+    "Forma bolas con la masa resultante.",
+    "Fríe los bolones en abundante aceite caliente hasta que estén dorados por todos lados.",
+    "Retira y escurre sobre papel de cocina antes de servir."
+  ]
+}
