@@ -33,101 +33,149 @@ class RecipeRepository {
     return await Recipe.findByIdAndUpdate(id, data, { new: true }).populate('ingredients.ingredient');
   }
 
-  // Buscar por ID
+  // Buscar receta por ID
   async findById(id: string): Promise<IRecipe | null> {
     return await Recipe.findById(id).populate('ingredients.ingredient');
   }
 
-  // Buscar todas
+  // Buscar todas las recetas
   async findAll(): Promise<IRecipe[]> {
     return await Recipe.find().populate('ingredients.ingredient');
   }
 
-  // Buscar recetas que puedan hacerse con TODOS los ingredientes enviados
+  /**
+   * Buscar recetas que puedan hacerse con TODOS los ingredientes enviados.
+   * Retorna solo recetas cuyas recetas estén completamente contenidas en ingredientIds.
+   */
   async findByIngredients(ingredientIds: string[]): Promise<IRecipe[]> {
-  const objectIds = ingredientIds
-    .filter(id => mongoose.Types.ObjectId.isValid(id))
-    .map(id => new mongoose.Types.ObjectId(id));
+    const objectIds = ingredientIds
+      .filter(id => mongoose.Types.ObjectId.isValid(id))
+      .map(id => new mongoose.Types.ObjectId(id));
 
-  const recetas = await Recipe.aggregate([
-    {
-      $addFields: {
-        recipeIngredientIds: {
-          $map: {
-            input: "$ingredients",
-            as: "i",
-            in: "$$i.ingredient"
+    const recetas = await Recipe.aggregate([
+      {
+        $addFields: {
+          recipeIngredientIds: {
+            $map: {
+              input: "$ingredients",
+              as: "i",
+              in: "$$i.ingredient"
+            }
           }
         }
+      },
+      {
+        $addFields: {
+          matchCount: {
+            $size: { $setIntersection: ["$recipeIngredientIds", objectIds] }
+          },
+          recipeIngredientCount: { $size: "$recipeIngredientIds" }
+        }
+      },
+      {
+        $match: { $expr: { $eq: ["$matchCount", "$recipeIngredientCount"] } }
       }
-    },
-    {
-      $addFields: {
-        matchCount: {
-          $size: {
-            $setIntersection: ["$recipeIngredientIds", objectIds]
-          }
-        },
-        recipeIngredientCount: { $size: "$recipeIngredientIds" }
-      }
-    },
-    {
-      $match: {
-        $expr: { $eq: ["$matchCount", "$recipeIngredientCount"] }
-      }
-    }
-  ]);
+    ]);
 
-  // Popula los ingredientes si lo necesitas
-  const ids = recetas.map((r: any) => r._id);
-  return await Recipe.find({ _id: { $in: ids } }).populate('ingredients.ingredient');
-}
+    // Obtiene los IDs de las recetas encontradas
+    const ids = recetas.map((r: any) => r._id);
+    return await Recipe.find({ _id: { $in: ids } }).populate('ingredients.ingredient');
+  }
 
-
-  // Buscar por tipo
+  // Buscar recetas por tipo
   async findByType(type: string): Promise<IRecipe[]> {
     return await Recipe.find({ type }).populate('ingredients.ingredient');
   }
 
-  // Buscar por dificultad
+  // Buscar recetas por dificultad
   async findByDifficulty(difficulty: string): Promise<IRecipe[]> {
     return await Recipe.find({ difficulty }).populate('ingredients.ingredient');
   }
 
-  // Las más populares
+  // Recetas más populares (por rating)
   async findPopular(): Promise<IRecipe[]> {
     return await Recipe.find().sort({ rating: -1 }).limit(10).populate('ingredients.ingredient');
   }
 
-  // Recomendadas (puedes personalizar lógica)
+  // Recomendadas para usuario (puedes personalizar esta lógica)
   async findRecommended(userId: string): Promise<IRecipe[]> {
     return await Recipe.find().limit(5).populate('ingredients.ingredient');
   }
 
-  // Calificar receta
-  async rateRecipe(recipeId: string, userId: string, value: number): Promise<IRecipe | null> {
-    if (value < 1 || value > 5) throw new Error('Valor de rating inválido');
-    const recipe = await Recipe.findById(recipeId);
-    if (!recipe) return null;
 
-    if ((recipe as any).ratings) {
-      let found = (recipe as any).ratings.find((r: any) => r.userId.equals(userId));
-      if (found) {
-        recipe.ratingTotal! -= found.value;
-        recipe.ratingTotal! += value;
-        found.value = value;
-      } else {
-        (recipe as any).ratings.push({ userId: new mongoose.Types.ObjectId(userId), value });
-        recipe.ratingTotal = (recipe.ratingTotal || 0) + value;
-        recipe.ratingCount = (recipe.ratingCount || 0) + 1;
-      }
-    } else {
-      recipe.ratingTotal = (recipe.ratingTotal || 0) + value;
-      recipe.ratingCount = (recipe.ratingCount || 0) + 1;
-    }
-    recipe.rating = recipe.ratingTotal! / recipe.ratingCount!;
-    await recipe.save();
-    return await Recipe.findById(recipeId).populate('ingredients.ingredient');
+  // Calificar receta
+async rateRecipe(recipeId: string, userId: string, value: number): Promise<IRecipe | null> {
+  if (value < 1 || value > 5) throw new Error('Valor de rating inválido');
+  
+  const recipe = await Recipe.findById(recipeId);
+  if (!recipe) return null;
+
+  // Busca rating previo
+  let found = recipe.ratings?.find((r: any) => r.userId.toString() === userId.toString());
+  
+  if (found) {
+    // Actualizar rating existente
+    recipe.ratingTotal! -= found.value;
+    recipe.ratingTotal! += value;
+    found.value = value;
+  } else {
+    // Agregar nuevo rating
+    recipe.ratings?.push({ userId: new mongoose.Types.ObjectId(userId), value });
+    recipe.ratingTotal = (recipe.ratingTotal || 0) + value;
+    recipe.ratingCount = (recipe.ratingCount || 0) + 1;
+  }
+
+  // Recalcular promedio de calificación
+  recipe.rating = recipe.ratingTotal! / recipe.ratingCount!;
+  
+  // Guardar la receta con la calificación actualizada
+  await recipe.save();
+
+  // Devuelve la receta actualizada
+  return await Recipe.findById(recipeId).populate('ingredients.ingredient');
+}
+
+  /**
+   * Buscar recetas por proximidad:
+   * 1. Solo devuelve recetas con al menos 1 coincidencia de ingrediente (matched > 0).
+   * 2. Ordena primero por menor cantidad total de ingredientes (más sencillas primero),
+   *    luego por mayor porcentaje de match,
+   *    luego por menor cantidad de ingredientes faltantes.
+   */
+  async findByProximityOrdered(ingredientIds: string[]): Promise<any[]> {
+    const allRecipes = await Recipe.find().populate('ingredients.ingredient');
+    return allRecipes
+      .map(recipe => {
+        const recipeIngredientIds = recipe.ingredients.map((ing: any) =>
+          typeof ing.ingredient === 'string'
+            ? ing.ingredient
+            : (ing.ingredient?._id?.toString() ?? '')
+        ).filter(Boolean);
+
+        const matched = recipeIngredientIds.filter(id => ingredientIds.includes(id)).length;
+        const total = recipeIngredientIds.length;
+        const percentage = total > 0 ? matched / total : 0;
+        const missing = total - matched;
+
+        return {
+          recipe,
+          matched,
+          total,
+          percentage,
+          missing,
+          matchedIngredientIds: recipeIngredientIds.filter(id => ingredientIds.includes(id)),
+          missingIngredientIds: recipeIngredientIds.filter(id => !ingredientIds.includes(id)),
+        };
+      })
+      .filter(item => item.matched > 0) // Solo recetas con al menos una coincidencia
+      .sort((a, b) => {
+        // 1. Menor cantidad total de ingredientes
+        if (a.total !== b.total) return a.total - b.total;
+        // 2. Mayor porcentaje de coincidencia
+        if (b.percentage !== a.percentage) return b.percentage - a.percentage;
+        // 3. Menor cantidad de ingredientes faltantes
+        return a.missing - b.missing;
+      });
   }
 }
 

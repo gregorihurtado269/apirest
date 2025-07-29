@@ -1,31 +1,29 @@
-### Crear receta (ejemplo: Pescadillas de atún)
-POST http://localhost:5000/api/recipes
+
+GET  http://localhost:5000/api/recipes
 Content-Type: application/json
 
 {
-  "title": "Bolón de verde",
-  "imageUrl": "https://cdn0.recetasgratis.net/es/posts/6/8/4/bolon_de_verde_74486_orig.jpg",
-  "description": "Desayuno tradicional de la costa ecuatoriana hecho a base de plátano verde y relleno de chicharrón de cerdo y queso fresco.",
-  "timeRequired": 45,
-  "servings": 4,
-  "difficulty": "Principiante" ,
-  "type": "Ecuatoriana",
+  "title": "Queso de leche ecuatoriano",
+  "imageUrl": "https://cdn0.recetasgratis.net/es/posts/0/5/8/queso_de_leche_ecuatoriano_41850_orig.jpg",
+  "description": "Postre tradicional ecuatoriano, similar al flan, elaborado con leche, huevos, azúcar, canela y vainilla. Suave y cremoso, perfecto para ocasiones especiales.",
+  "timeRequired": 60,
+  "servings": 8,
+  "difficulty": "Principiante",
+  "type": "Postres",
   "ingredients": [
-    { "ingredient": "6858ef9b38f3ab2130e1558d", "quantity": 2, "unit": "unidad" },             
-    { "ingredient": "6858efac38f3ab2130e1558f", "quantity": 150, "unit": "gramo" },           
-    { "ingredient": "6858efc938f3ab2130e15591", "quantity": 150, "unit": "gramo" },             
-    { "ingredient": "6858efdc38f3ab2130e15595", "quantity": 0.5, "unit": "cucharadita" },       
-    { "ingredient": "6858efec38f3ab2130e15597", "quantity": 1, "unit": "cucharada" },         
-    { "ingredient": "6858eff638f3ab2130e15599", "quantity": 500, "unit":"mililitro" }              
+    { "ingredient": "6859d3bc6f7e60404dc8ff0f", "quantity": 10, "unit": "unidad" },
+    { "ingredient": "6859d3a56f7e60404dc8ff0b", "quantity": 450, "unit": "gramo" },
+    { "ingredient": "6859d3796f7e60404dc8ff05", "quantity": 1000, "unit": "mililitro" },
+    { "ingredient": "6859d3b16f7e60404dc8ff0d", "quantity": 2, "unit": "rama" },
+    { "ingredient": "6859d3c96f7e60404dc8ff11", "quantity": 1, "unit": "cucharadita" },
+    { "ingredient": "6859d6006f7e60404dc8ff75", "quantity": 2, "unit": "cucharada" }
   ],
   "steps": [
-    "Pela los plátanos verdes y córtalos en dos.",
-    "Cocina los plátanos en agua hirviendo durante aproximadamente 15 minutos o hasta que estén blandos.",
-    "Escúrrelos y májalos con un pasapuré o tenedor. Agrega la sal y la mantequilla.",
-    "Agrega el chicharrón picado y el queso rallado grueso cuando aún estén tibios los plátanos.",
-    "Mezcla bien y amasa con las manos hasta integrar todo.",
-    "Forma bolas con la masa resultante.",
-    "Fríe los bolones en abundante aceite caliente hasta que estén dorados por todos lados.",
-    "Retira y escurre sobre papel de cocina antes de servir."
+    "Pon a hervir la leche con las ramas de canela y el azúcar, reservando 1/4 de taza de azúcar aparte.",
+    "Cuando el azúcar se haya disuelto y la leche espese ligeramente, retira del fuego, cuela la mezcla y deja enfriar.",
+    "Agrega los huevos, la esencia de vainilla y la maicena. Bate todo durante 10 minutos hasta obtener una crema suave.",
+    "Prepara un caramelo con el azúcar reservada y una cucharada de agua; vierte el caramelo en el fondo de un molde.",
+    "Vierte la mezcla de leche sobre el caramelo y hornea a 180°C durante 30 minutos.",
+    "Deja enfriar antes de desmoldar y servir."
   ]
 }

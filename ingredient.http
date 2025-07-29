@@ -1,9 +1,10 @@
-GET  http://localhost:5000/api/ingredients
+GET         http://localhost:5000/api/ingredients
 Content-Type: application/json
 
-{
-  "name": "Aceite para freír",
-  "units": ["mililitro", "cucharada", "porcion"],
-  "defaultUnit": "mililitro",
-  "category": "Grasas y aceites"
-}
+  {
+    "name": "Refractario o molde",
+    "units": ["unidad"],
+    "defaultUnit": "unidad",
+    "category": "Utensilios"
+  }
+ 

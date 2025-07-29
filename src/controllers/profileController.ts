@@ -19,9 +19,9 @@ export const getProfile: RequestHandler = async (req, res, next) => {
     const profile = await profileService.getProfileByUserId(userId);
     if (!profile) {
       res.status(404).json({ error: 'Perfil no encontrado' });
-      return;
+      return; // Solo para cortar el flujo, no para retornar valor
     }
-    res.json(profile);
+    res.json(typeof (profile as any).toObject === 'function' ? (profile as any).toObject() : profile);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }

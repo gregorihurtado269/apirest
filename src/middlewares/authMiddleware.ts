@@ -6,10 +6,11 @@ interface AuthRequest extends Request {
   user?: any;
 }
 
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Token de autenticación requerido' });
+    res.status(401).json({ error: 'Token de autenticación requerido' });
+    return;
   }
   const token = authHeader.split(' ')[1];
   try {
@@ -17,7 +18,8 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Token inválido o expirado' });
+    res.status(401).json({ error: 'Token inválido o expirado' });
+    return;
   }
 };
 

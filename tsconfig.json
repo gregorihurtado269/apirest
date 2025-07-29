@@ -13,8 +13,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    "types": ["express"]  // ← Añade esta línea
+    "types": ["express"]  
   },
-  "include": ["src/**/*"],  // ← Cambia este patrón
+  "include": ["src/**/*"],  
   "exclude": ["node_modules", "dist"]
 }

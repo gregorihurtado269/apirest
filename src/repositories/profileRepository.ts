@@ -16,8 +16,9 @@ class ProfileRepository {
    * Busca el perfil por ID de usuario.
    */
   async findByUserId(userId: string): Promise<IProfile | null> {
-    return await Profile.findOne({ userId });
-  }
+  // Siempre busca como string:
+  return await Profile.findOne({ userId: String(userId) });
+}
 }
 
 export default new ProfileRepository();

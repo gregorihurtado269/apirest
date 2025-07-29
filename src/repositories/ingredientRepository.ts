@@ -10,6 +10,10 @@ class IngredientRepository {
     return Ingredient.findOne({ name });
   }
 
+  async findById(id: string): Promise<IIngredient | null> {  // Nuevo método para buscar por ID
+    return Ingredient.findById(id);
+  }
+
   async findAll(): Promise<IIngredient[]> {
     return Ingredient.find().sort({ name: 1 });
   }
